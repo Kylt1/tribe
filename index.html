@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tribe.io</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ── JOIN SCREEN ───────────────────────────────────────────────────── -->
+<div id="join-screen">
+  <div class="join-card">
+    <div class="logo-wrap"><h1>TRIBE.IO</h1></div>
+    <p class="logo-sub">Survive · Evolve · Dominate</p>
+    <input id="name-input" type="text" maxlength="16" placeholder="Enter your tribe name…" autocomplete="off"/>
+    <button class="btn-play" id="btn-play">ENTER THE WILD</button>
+    <div class="controls-hint">
+      <span>WASD</span> Move &nbsp;·&nbsp; <span>Mouse</span> Aim &amp; Attack<br>
+      <span>1-5</span> Switch weapon &nbsp;·&nbsp; <span>E</span> Eat food<br>
+      <span>Q</span> Wall &nbsp;·&nbsp; <span>F</span> Spike &nbsp;·&nbsp; <span>G</span> Windmill &nbsp;·&nbsp; <span>H</span> Totem<br>
+      Level up → earn stat points → grow stronger
+    </div>
+  </div>
+</div>
+
+<!-- ── GAME CANVAS ───────────────────────────────────────────────────── -->
+<canvas id="game-canvas"></canvas>
+<canvas id="minimap-canvas" width="160" height="160"></canvas>
+
+<!-- ── HUD ───────────────────────────────────────────────────────────── -->
+<div id="hud">
+
+  <!-- HP + XP -->
+  <div id="bars-wrap">
+    <div class="bar-row">
+      <span class="bar-icon">❤️</span>
+      <div class="bar-track"><div class="bar-fill" id="hp-fill" style="width:100%"></div></div>
+      <span class="bar-label" id="hp-label">100</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-icon">✨</span>
+      <div class="bar-track"><div class="bar-fill" id="xp-fill" style="width:0%"></div></div>
+      <span class="bar-label" id="xp-label">0</span>
+    </div>
+    <div id="level-badge">LEVEL 1</div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div id="leaderboard">
+    <h3>⚔ TRIBE RANKINGS</h3>
+    <div id="lb-list"></div>
+  </div>
+
+  <!-- Kill Feed -->
+  <div id="killfeed"></div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- Level Up Banner -->
+  <div id="levelup-banner">
+    <div class="lu-inner">
+      <h2>⬆ LEVEL UP!</h2>
+      <p id="lu-msg">You reached level 2 — 3 stat points earned!</p>
+    </div>
+  </div>
+
+  <!-- Stat Panel -->
+  <div id="stat-panel">
+    <h4>⚔ TRIBE STATS</h4>
+    <div id="sp-count">0 points available</div>
+    <div class="stat-row">
+      <span class="stat-name">🪓 Axe Power</span>
+      <div class="stat-bar-wrap"><div class="stat-bar-fill" id="sb-axePower" style="width:0%"></div></div>
+      <span class="stat-val" id="sv-axePower">0</span>
+      <button class="btn-stat" data-stat="axePower" disabled>+</button>
+    </div>
+    <div class="stat-row">
+      <span class="stat-name">🔱 Spear Power</span>
+      <div class="stat-bar-wrap"><div class="stat-bar-fill" id="sb-spearPower" style="width:0%"></div></div>
+      <span class="stat-val" id="sv-spearPower">0</span>
+      <button class="btn-stat" data-stat="spearPower" disabled>+</button>
+    </div>
+    <div class="stat-row">
+      <span class="stat-name">🏹 Bow Power</span>
+      <div class="stat-bar-wrap"><div class="stat-bar-fill" id="sb-bowPower" style="width:0%"></div></div>
+      <span class="stat-val" id="sv-bowPower">0</span>
+      <button class="btn-stat" data-stat="bowPower" disabled>+</button>
+    </div>
+    <div class="stat-row">
+      <span class="stat-name">💨 Speed</span>
+      <div class="stat-bar-wrap"><div class="stat-bar-fill" id="sb-speed" style="width:0%"></div></div>
+      <span class="stat-val" id="sv-speed">0</span>
+      <button class="btn-stat" data-stat="speed" disabled>+</button>
+    </div>
+    <div class="stat-row">
+      <span class="stat-name">🛡 Defense</span>
+      <div class="stat-bar-wrap"><div class="stat-bar-fill" id="sb-defense" style="width:0%"></div></div>
+      <span class="stat-val" id="sv-defense">0</span>
+      <button class="btn-stat" data-stat="defense" disabled>+</button>
+    </div>
+  </div>
+
+  <!-- Weapon Bar -->
+  <div id="weapon-bar">
+    <button class="wpn-btn active" data-weapon="axe">🪓 Axe <span class="key-hint">[1]</span></button>
+    <button class="wpn-btn" data-weapon="spear">🔱 Spear <span class="key-hint">[2]</span></button>
+    <button class="wpn-btn locked" data-weapon="club">🏏 Club <span class="unlock-tag">Lv5</span><span class="key-hint">[3]</span></button>
+    <button class="wpn-btn locked" data-weapon="bow">🏹 Bow <span class="unlock-tag">Lv8</span><span class="key-hint">[4]</span></button>
+    <button class="wpn-btn locked" data-weapon="sword">⚔ Sword <span class="unlock-tag">Lv12</span><span class="key-hint">[5]</span></button>
+  </div>
+
+  <!-- Build Bar -->
+  <div id="build-bar">
+    <div class="build-label">BUILD</div>
+    <button class="build-btn" data-stype="wall">🪵 Wall <span class="build-cost">10🪵</span><span class="key-hint" style="font-size:.65rem;color:rgba(255,255,255,.25)">[Q]</span></button>
+    <button class="build-btn" data-stype="spike">🦔 Spike <span class="build-cost">15🪵 5🪨</span><span class="key-hint" style="font-size:.65rem;color:rgba(255,255,255,.25)">[F]</span></button>
+    <button class="build-btn" data-stype="windmill">🌀 Windmill <span class="build-cost">50🪵 20🪨</span><span class="key-hint" style="font-size:.65rem;color:rgba(255,255,255,.25)">[G]</span></button>
+    <button class="build-btn" data-stype="totem">🗿 Totem <span class="build-cost">30🪵 10🪨</span><span class="key-hint" style="font-size:.65rem;color:rgba(255,255,255,.25)">[H]</span></button>
+  </div>
+
+  <!-- Inventory -->
+  <div id="inventory">
+    <div class="inv-slot"><span class="inv-icon">🪵</span><span id="inv-wood">0</span></div>
+    <div class="inv-slot"><span class="inv-icon">🍖</span><span id="inv-food">0</span></div>
+    <div class="inv-slot"><span class="inv-icon">🪨</span><span id="inv-stone">0</span></div>
+    <div class="inv-slot"><span class="inv-icon">⚔</span><span id="inv-kills">0</span></div>
+  </div>
+
+  <!-- Respawn -->
+  <div id="respawn-overlay">
+    <h2>💀 SLAIN</h2>
+    <p>Respawning in 6 seconds…</p>
+  </div>
+
+  <!-- Ping -->
+  <div id="ping">-- ms</div>
+
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
