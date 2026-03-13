@@ -1,0 +1,330 @@
+/* ── Google Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+/* ── CSS Variables ── */
+:root {
+  --grass:       #7ec850;
+  --grass-dark:  #6ab040;
+  --sand:        #e8d8a0;
+  --water:       #5aafdc;
+  --wood-color:  #c8883a;
+  --stone-color: #909090;
+  --food-color:  #e06060;
+  --gold-color:  #f0c030;
+  --hp-full:     #4ecb71;
+  --hp-low:      #e05050;
+  --ui-bg:       rgba(20, 14, 8, 0.82);
+  --ui-border:   rgba(255,210,100,0.25);
+  --ui-text:     #f5e8c0;
+  --accent:      #f0c030;
+  --radius-lg:   14px;
+  --shadow:      0 4px 24px rgba(0,0,0,0.55);
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #222; }
+body { font-family: 'Nunito', sans-serif; color: var(--ui-text); }
+
+/* ── Join Screen ── */
+#join-screen {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #2e6e2e 0%, #163516 55%, #0a1f0a 100%);
+  z-index: 100;
+}
+.join-card {
+  background: var(--ui-bg);
+  border: 2px solid var(--ui-border);
+  border-radius: 24px;
+  padding: 48px 56px;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow), 0 0 60px rgba(240,192,48,0.12);
+  min-width: 340px;
+}
+.join-card h1 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 3.2rem;
+  color: var(--accent);
+  text-shadow: 0 2px 12px rgba(240,192,48,0.4), 3px 3px 0 #7a4800;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.join-card .tagline {
+  font-size: 0.95rem;
+  color: #a0c080;
+  margin-bottom: 32px;
+  font-weight: 600;
+}
+.join-card input {
+  width: 100%;
+  padding: 13px 18px;
+  border-radius: 10px;
+  border: 2px solid var(--ui-border);
+  background: rgba(255,255,255,0.07);
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  outline: none;
+  margin-bottom: 18px;
+  transition: border-color 0.2s;
+}
+.join-card input:focus { border-color: var(--accent); }
+.join-card input::placeholder { color: rgba(255,255,255,0.3); }
+.btn-play {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #f0c030, #e08800);
+  color: #3a1e00;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #a05500, 0 6px 20px rgba(240,160,0,0.35);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-play:hover  { transform: translateY(-2px); box-shadow: 0 6px 0 #a05500, 0 8px 24px rgba(240,160,0,0.4); }
+.btn-play:active { transform: translateY(2px);  box-shadow: 0 2px 0 #a05500; }
+.controls-hint {
+  margin-top: 22px;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.7;
+}
+.controls-hint span { color: rgba(255,255,255,0.6); font-weight: 700; }
+
+/* ── Canvas ── */
+#game-canvas {
+  display: block;
+  position: fixed; top: 0; left: 0;
+  cursor: crosshair;
+}
+
+/* ── HUD ── */
+#hud {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+#hud.active { display: block; }
+
+/* ── Inventory Bar ── */
+#inventory {
+  position: absolute;
+  bottom: 24px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 10px;
+  pointer-events: all;
+}
+.inv-slot {
+  background: var(--ui-bg);
+  border: 2px solid var(--ui-border);
+  border-radius: var(--radius-lg);
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.9rem; font-weight: 800;
+  min-width: 72px; justify-content: center;
+  backdrop-filter: blur(8px);
+}
+.inv-icon { font-size: 1.3rem; }
+.inv-val  { font-size: 1rem; }
+
+/* ── Weapon Bar ── */
+#weapon-bar {
+  position: absolute;
+  bottom: 90px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 10px;
+  pointer-events: all;
+}
+.wpn-btn {
+  background: var(--ui-bg);
+  border: 2px solid var(--ui-border);
+  border-radius: var(--radius-lg);
+  padding: 10px 18px;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.85rem; font-weight: 800;
+  color: var(--ui-text);
+  display: flex; align-items: center; gap: 7px;
+  transition: border-color 0.15s, background 0.15s;
+  backdrop-filter: blur(8px);
+  pointer-events: all;
+}
+.wpn-btn:hover         { border-color: var(--accent); }
+.wpn-btn.active        { border-color: var(--accent); background: rgba(240,192,48,0.15); }
+.wpn-btn .key-hint     { font-size: 0.7rem; color: rgba(255,255,255,0.35); }
+
+/* ── Build Bar ── */
+#build-bar {
+  position: absolute;
+  bottom: 90px; right: 24px;
+  display: flex; flex-direction: column; gap: 8px;
+  pointer-events: all;
+}
+.build-btn {
+  background: var(--ui-bg);
+  border: 2px solid var(--ui-border);
+  border-radius: var(--radius-lg);
+  padding: 9px 14px;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.8rem; font-weight: 800;
+  color: var(--ui-text);
+  display: flex; align-items: center; gap: 7px;
+  transition: border-color 0.15s;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+.build-btn:hover  { border-color: var(--accent); }
+.build-btn.sel    { border-color: #4caf50; background: rgba(76,175,80,0.15); }
+.build-cost       { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+
+/* ── HP Bar ── */
+#hp-bar-wrap {
+  position: absolute;
+  top: 22px; left: 50%; transform: translateX(-50%);
+  width: 260px;
+  background: var(--ui-bg);
+  border: 2px solid var(--ui-border);
+  border-radius: 20px;
+  padding: 7px 14px;
+  display: flex; align-items: center; gap: 10px;
+  backdrop-filter: blur(8px);
+}
+#hp-bar-track {
+  flex: 1; height: 12px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 99px; overflow: hidden;
+}
+#hp-bar-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--hp-full), #80ee90);
+  transition: width 0.2s, background 0.3s;
+}
+#hp-label { font-size: 0.8rem; font-weight: 800; min-width: 36px; text-align: right; }
+
+/* ── Leaderboard ── */
+#leaderboard {
+  position: absolute;
+  top: 22px; right: 24px;
+  background: var(--ui-bg);
+  border: 2px solid var(--ui-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  min-width: 180px;
+  backdrop-filter: blur(8px);
+}
+#leaderboard h3 {
+  font-family: 'Fredoka One', cursive;
+  color: var(--accent);
+  font-size: 1rem;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.lb-row {
+  display: flex; justify-content: space-between;
+  font-size: 0.8rem; padding: 2px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.lb-row:last-child { border-bottom: none; }
+.lb-name  { font-weight: 700; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-score { color: var(--accent); font-weight: 800; }
+
+/* ── Kill Feed ── */
+#killfeed {
+  position: absolute;
+  top: 22px; left: 24px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.kf-entry {
+  background: rgba(0,0,0,0.6);
+  border-left: 3px solid #e05050;
+  border-radius: 0 8px 8px 0;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  animation: fadeSlide 0.3s ease;
+}
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Toast notifications ── */
+#toast {
+  position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.toast-msg {
+  background: rgba(0,0,0,0.75);
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-size: 1rem; font-weight: 800;
+  text-align: center;
+  animation: toastAnim 2s forwards;
+}
+@keyframes toastAnim {
+  0%   { opacity: 0; transform: translateY(10px); }
+  15%  { opacity: 1; transform: translateY(0); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── Respawn overlay ── */
+#respawn-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: none;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+  font-family: 'Fredoka One', cursive;
+}
+#respawn-overlay.show { display: flex; }
+#respawn-overlay h2  { font-size: 3rem; color: #e05050; text-shadow: 2px 2px 0 #600; }
+#respawn-overlay p   { font-size: 1.2rem; color: #ccc; }
+
+/* ── Ping ── */
+#ping {
+  position: absolute;
+  bottom: 8px; right: 10px;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── Server URL input ── */
+#server-input {
+  width: 100%;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 2px solid rgba(100,200,255,0.25);
+  background: rgba(255,255,255,0.05);
+  color: #aee;
+  font-family: 'Courier New', monospace;
+  font-size: 0.88rem;
+  outline: none;
+  margin-bottom: 6px;
+  transition: border-color 0.2s;
+}
+#server-input:focus { border-color: rgba(100,200,255,0.6); }
+#server-input::placeholder { color: rgba(150,220,255,0.3); }
+.server-hint {
+  display: block;
+  font-size: 0.72rem;
+  color: rgba(150,220,255,0.5);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.server-hint code {
+  background: rgba(255,255,255,0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #80ddff;
+  font-size: 0.78rem;
+}
+.server-hint b { color: rgba(150,220,255,0.8); }
